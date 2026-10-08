@@ -1,0 +1,169 @@
+{
+  "name": "HOF LineSkin - Quiz Lead",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hof-lineskin-lead",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "webhook-node",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://script.google.com/macros/s/SEU_ID_DO_APPS_SCRIPT/exec?spreadsheetId=SEU_ID_DA_PLANILHA&tab=Leads",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        -120
+      ],
+      "id": "http-apps-script",
+      "name": "Enviar para Google Sheets",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-final",
+              "leftValue": "={{ $json.body.final }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        220,
+        120
+      ],
+      "id": "if-final",
+      "name": "Envio final?"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const body = $input.item.json.body;\nconst userData = {\n  ph: [body.ph_hash],\n  fn: [body.fn_hash],\n  ln: [body.ln_hash],\n  external_id: [body.external_id_hash],\n  client_user_agent: body.user_agent,\n};\nif (body.fbc) userData.fbc = body.fbc;\nif (body.fbp) userData.fbp = body.fbp;\n\nreturn {\n  json: {\n    data: [\n      {\n        event_name: 'Lead',\n        event_time: Math.floor(new Date(body.submitted_at).getTime() / 1000),\n        action_source: 'website',\n        event_source_url: body.event_source_url,\n        event_id: body.event_id,\n        user_data: userData,\n      },\n    ],\n  },\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        120
+      ],
+      "id": "code-meta-payload",
+      "name": "Montar payload Meta CAPI"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v21.0/SEU_PIXEL_ID/events",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "SEU_TOKEN_META_CAPI"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        120
+      ],
+      "id": "http-meta-capi",
+      "name": "Enviar Lead para Meta CAPI",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Enviar para Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Envio final?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio final?": {
+      "main": [
+        [
+          {
+            "node": "Montar payload Meta CAPI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Montar payload Meta CAPI": {
+      "main": [
+        [
+          {
+            "node": "Enviar Lead para Meta CAPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

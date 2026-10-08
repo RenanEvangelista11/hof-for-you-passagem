@@ -1,0 +1,21 @@
+Vou assumir a captação de leads de uma clínica de estética (Dra. Fernanda Ângelo, HOF For You) e quero replicar toda a estrutura na MINHA conta. Esta pasta é o pacote de passagem.
+
+Leia primeiro 00-LEIA-ME-PRIMEIRO.md e LINKS-E-PLANILHAS.md.
+
+Conteúdo:
+- quizzes/: 5 quizzes em HTML puro (hof-lineskin-fernanda-quiz, hof-nbm-quiz, hof-bbup-quiz, hof-for-you-quiz, skinface-quiz). O index.html e o <nome>.html de cada pasta são idênticos.
+- workflows-n8n/: 5 workflows prontos para importar. Já vêm sem token, sem pixel e sem URL de Apps Script (placeholders SEU_...).
+- apps-script/Code.gs: Apps Script universal que grava JSON em qualquer planilha da conta que o publicar.
+
+Arquitetura: o quiz faz POST num webhook do n8n. O n8n (a) envia o lead ao Apps Script, que grava na planilha, e (b) no envio final envia o evento Lead para a Meta Conversions API.
+
+Faça em ordem, parando e me perguntando antes de qualquer ação externa (criar recurso, importar, publicar):
+
+1. Inventário. Liste tudo que está fixo no código e precisa ser trocado: WEBHOOK_URL, Pixel ID 1483548759360040, número de WhatsApp (wa.me/...), e os placeholders SEU_ID_DO_APPS_SCRIPT, SEU_ID_DA_PLANILHA, SEU_PIXEL_ID, SEU_TOKEN_META_CAPI. Mostre uma tabela por quiz.
+2. Pergunte-me, uma vez e de forma agrupada: URL do meu n8n e a chave de API (ou me diga para importar manualmente), ID da minha planilha de leads, URL /exec do meu Apps Script, Pixel ID, WhatsApp de cada quiz e qual conta Vercel usar. Se eu ainda não tiver o Apps Script ou a planilha, me guie na criação usando o Code.gs (App da Web, executar como eu, acesso: qualquer pessoa).
+3. Prepare cópias dos 5 workflows com os valores trocados. Defina a aba da planilha por produto: LineSkin, NBM, BBUP, SkinFace (e BBUP para o hof-for-you-quiz). Nunca mostre o token da Meta no chat nem o salve em arquivo versionado: peça-me para colar direto no n8n, ou use variável de ambiente.
+4. Importe e ative os workflows no meu n8n e me devolva a URL de PRODUÇÃO de cada webhook. Confirme que os nós de Sheets e CAPI mantêm Retry on Fail com 3 tentativas (o Apps Script do Google devolve 404 intermitente).
+5. Atualize cada quiz (WEBHOOK_URL, Pixel ID no script e no noscript, WhatsApp), nos dois arquivos .html de cada pasta. Publique cada quiz como projeto separado na Vercel. Se a Vercel travar em "Building" ou bloquear por autor de commit, publique um build sem a pasta .git.
+6. Teste ponta a ponta com um lead falso por quiz: a linha apareceu na planilha, a execução ficou verde no n8n, o evento Lead apareceu em "Testar eventos" da Meta (peça o test_event_code). Relate o que passou e o que falhou, sem esconder erros. Depois me ajude a apagar as linhas de teste.
+
+Regras: não reutilize nada do dono anterior (pixel, token, planilhas, Apps Scripts, projetos Vercel). Se faltar informação, pergunte; não invente. Escreva sem travessões. Ao final, entregue um resumo com: URLs dos quizzes, URLs dos webhooks, planilhas usadas e pendências.

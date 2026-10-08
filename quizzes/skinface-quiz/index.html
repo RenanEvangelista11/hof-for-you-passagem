@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkinFace — Formulário de Aplicação</title>
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1483548759360040');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1483548759360040&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- /Meta Pixel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fahkwang:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:       #9C8686;
+      --rose-dark:  #86726F;
+      --sand:       #E6D7C6;
+      --sand-light: #F5EEE4;
+      --dark:       #141413;
+      --white:      #FFFFFF;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--dark);
+      overflow: hidden;
+    }
+
+    #app {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Progress bar ─── */
+    #progress-wrap {
+      height: 3px;
+      background: var(--sand-light);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+    #progress-bar {
+      height: 100%;
+      background: var(--rose);
+      width: 0%;
+      transition: width 0.5s var(--ease-out);
+    }
+
+    /* ─── Screens container ─── */
+    #screens {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      justify-content: safe center;
+      padding: clamp(28px, 5vh, 56px) 20px 110px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+      transform: translateX(32px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+    .screen.exit-left {
+      opacity: 0;
+      transform: translateX(-32px);
+      pointer-events: none;
+    }
+
+    /* ─── Intro screen ─── */
+    #screen-intro {
+      text-align: center;
+      gap: 0;
+    }
+
+    .intro-title {
+      font-family: 'Fahkwang', serif;
+      font-weight: 600;
+      font-size: clamp(24px, 5.5vw, 34px);
+      line-height: 1.25;
+      color: var(--dark);
+      max-width: 580px;
+      margin-bottom: 22px;
+    }
+
+    .intro-text {
+      font-size: clamp(14px, 3.8vw, 16px);
+      line-height: 1.75;
+      color: rgba(20,20,19,0.68);
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+    .intro-text strong { color: var(--dark); font-weight: 600; }
+    .intro-text p + p { margin-top: 12px; }
+
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--rose);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.02em;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 38px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn-start:hover  { background: var(--rose-dark); transform: translateY(-1px); }
+    .btn-start:active { transform: scale(0.98); }
+
+    /* ─── Question screens ─── */
+    .q-header {
+      width: 100%;
+      max-width: 580px;
+      margin-bottom: 30px;
+    }
+
+    .step-label {
+      font-family: 'Fahkwang', serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 12px;
+    }
+
+    .q-text {
+      font-family: 'Fahkwang', serif;
+      font-weight: 500;
+      font-size: clamp(20px, 5vw, 27px);
+      line-height: 1.35;
+      color: var(--dark);
+    }
+
+    /* ─── Option cards ─── */
+    .options {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--white);
+      border: 1.5px solid var(--sand);
+      border-radius: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .option-card:hover {
+      border-color: var(--rose);
+      background: var(--sand-light);
+    }
+    .option-card.selected {
+      border-color: var(--rose);
+      background: var(--sand-light);
+    }
+
+    .option-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--sand);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+    }
+    .option-card.selected .option-check {
+      border-color: var(--rose);
+    }
+    .option-check-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .option-card.selected .option-check-dot { opacity: 1; }
+
+    .option-label {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 3.6vw, 16px);
+      font-weight: 500;
+      color: var(--dark);
+      line-height: 1.4;
+    }
+
+    /* ─── Next button ─── */
+    #btn-next-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 20px 28px;
+      background: linear-gradient(to top, rgba(255,255,255,1) 65%, rgba(255,255,255,0));
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+      pointer-events: none;
+    }
+    #btn-next-wrap.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    #btn-next {
+      width: 100%;
+      max-width: 540px;
+      background: var(--rose);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      padding: 17px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    #btn-next:hover  { background: var(--rose-dark); transform: translateY(-1px); }
+    #btn-next:active { transform: scale(0.98); }
+
+    /* ─── Thank-you screen ─── */
+    #screen-thanks {
+      text-align: center;
+      gap: 0;
+    }
+
+    .thanks-icon {
+      width: 72px;
+      height: 72px;
+      background: var(--sand-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 26px;
+      border: 1.5px solid var(--rose);
+    }
+
+    .thanks-title {
+      font-family: 'Fahkwang', serif;
+      font-weight: 600;
+      font-size: clamp(24px, 6vw, 32px);
+      color: var(--dark);
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .thanks-sub {
+      font-size: clamp(14px, 3.8vw, 16px);
+      line-height: 1.75;
+      color: rgba(20,20,19,0.68);
+      max-width: 460px;
+      margin: 0 auto;
+    }
+    .thanks-sub strong { color: var(--dark); font-weight: 600; }
+
+    .btn-priority {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 18px;
+      background: var(--rose);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 16px 40px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn-priority:hover  { background: var(--rose-dark); transform: translateY(-1px); }
+    .btn-priority:active { transform: scale(0.98); }
+
+    /* ─── Contact form screen ─── */
+    #screen-form {
+      text-align: left;
+      gap: 0;
+    }
+
+    .form-header {
+      width: 100%;
+      max-width: 540px;
+      margin-bottom: 30px;
+    }
+    .form-eyebrow {
+      font-family: 'Fahkwang', serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 12px;
+    }
+    .form-title {
+      font-family: 'Fahkwang', serif;
+      font-weight: 600;
+      font-size: clamp(22px, 5.5vw, 27px);
+      line-height: 1.3;
+      color: var(--dark);
+      margin-bottom: 12px;
+    }
+    .form-subtitle {
+      font-size: clamp(13px, 3.5vw, 15px);
+      line-height: 1.7;
+      color: rgba(20,20,19,0.65);
+    }
+
+    .form-fields {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-field label {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(20,20,19,0.6);
+    }
+    .form-field input {
+      background: var(--white);
+      border: 1.5px solid var(--sand);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(15px, 4vw, 16px);
+      font-weight: 500;
+      color: var(--dark);
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      height: 52px;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+    }
+    .phone-input-wrap {
+      display: flex;
+      align-items: stretch;
+      height: 52px;
+      background: var(--white);
+      border: 1.5px solid var(--sand);
+      border-radius: 10px;
+      overflow: hidden;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .phone-input-wrap:focus-within { border-color: var(--rose); }
+    .phone-input-wrap.error { border-color: #C0645B; }
+    .phone-ddi-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--sand-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(20,20,19,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      border: none;
+      border-right: 1.5px solid var(--sand);
+      padding: 0 28px 0 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--dark);
+      cursor: pointer;
+      outline: none;
+      height: 100%;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .phone-ddi-select option { background: #fff; color: var(--dark); }
+    .phone-input-wrap input {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(15px, 4vw, 16px);
+      font-weight: 500;
+      color: var(--dark);
+      outline: none;
+      width: 100%;
+      height: 100%;
+      -webkit-appearance: none;
+    }
+    .form-field input::placeholder,
+    .phone-input-wrap input::placeholder {
+      color: rgba(20,20,19,0.32);
+      font-weight: 400;
+    }
+    .form-field input:focus { border-color: var(--rose); }
+    .form-field input.error { border-color: #C0645B; }
+    .field-error {
+      font-size: 12px;
+      color: #C0645B;
+      font-weight: 500;
+      display: none;
+      padding-left: 2px;
+    }
+    .field-error.visible { display: block; }
+
+    .privacy-note {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 6px;
+      padding: 14px 16px;
+      background: var(--sand-light);
+      border-radius: 10px;
+    }
+    .privacy-note svg { flex-shrink: 0; margin-top: 1px; }
+    .privacy-note p {
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(20,20,19,0.55);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .screen, #btn-next-wrap, #progress-bar { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-wrap" aria-hidden="true">
+  <div id="progress-bar"></div>
+</div>
+
+<div id="app">
+  <div id="screens">
+
+    <!-- ── INTRO ── -->
+    <section class="screen active" id="screen-intro" role="main">
+      <h1 class="intro-title">APLICAÇÃO PARA LISTA PRIORITÁRIA SKINFACE</h1>
+      <div class="intro-text">
+        <p><strong>ATENÇÃO:</strong> você está prestes a entrar na lista prioritária da próxima turma do SkinFace.</p>
+        <p>Ela é exclusiva para profissionais que já atuam ou estão prestes a atuar com harmonização facial e que querem sair na frente da concorrência, unindo protocolos de regeneração de pele aos resultados da harmonização.</p>
+        <p><strong>Se esse não é o seu momento, pare por aqui.</strong></p>
+        <p>As vagas são <strong>LIMITADAS</strong> e passam por avaliação do nosso time.</p>
+        <p><strong>Aperte no botão abaixo para iniciar sua aplicação</strong></p>
+      </div>
+      <button class="btn-start" onclick="startQuiz()" aria-label="Iniciar aplicação">Iniciar aplicação</button>
+    </section>
+
+    <!-- ── QUESTION 1 ── -->
+    <section class="screen" id="screen-q1" role="main" aria-label="Pergunta 1 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Com qual desses cenários você mais se identifica hoje?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 1)" onkeydown="keyOption(event, this, 1)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Já domino a harmonização facial e tenho segurança na técnica, mas sinto que falta ir além do preenchimento.</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 1)" onkeydown="keyOption(event, this, 1)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Atuo na área, mas ainda não tenho segurança total nos protocolos de qualidade de pele e regeneração.</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 1)" onkeydown="keyOption(event, this, 1)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Sinto insegurança quando o paciente pede um resultado que vai além do volume, e isso me trava na hora de cobrar mais.</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 1)" onkeydown="keyOption(event, this, 1)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Ainda não atuo com harmonização facial, ou atuo pouco, e quero começar com uma base sólida e segura.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 2 ── -->
+    <section class="screen" id="screen-q2" role="main" aria-label="Pergunta 2 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Qual é a sua formação de base?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 2)" onkeydown="keyOption(event, this, 2)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Biomedicina ou Enfermagem esteta</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 2)" onkeydown="keyOption(event, this, 2)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Odontologia</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 2)" onkeydown="keyOption(event, this, 2)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Medicina</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 2)" onkeydown="keyOption(event, this, 2)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Outra formação na área da estética</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 3 ── -->
+    <section class="screen" id="screen-q3" role="main" aria-label="Pergunta 3 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Você tem clínica própria?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 3)" onkeydown="keyOption(event, this, 3)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Sim, tenho minha própria clínica.</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 3)" onkeydown="keyOption(event, this, 3)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Atendo em consultório compartilhado ou alugado.</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 3)" onkeydown="keyOption(event, this, 3)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Atendo em clínica de terceiros como profissional contratado(a).</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 3)" onkeydown="keyOption(event, this, 3)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Ainda não atendo, estou me preparando para começar.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 4 ── -->
+    <section class="screen" id="screen-q4" role="main" aria-label="Pergunta 4 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Quantos pacientes você atende, em média, por mês?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 4)" onkeydown="keyOption(event, this, 4)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Até 10 pacientes</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 4)" onkeydown="keyOption(event, this, 4)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">De 10 a 30 pacientes</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 4)" onkeydown="keyOption(event, this, 4)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">De 30 a 60 pacientes</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 4)" onkeydown="keyOption(event, this, 4)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Mais de 60 pacientes</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 5 ── -->
+    <section class="screen" id="screen-q5" role="main" aria-label="Pergunta 5 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Se existisse uma formação que unisse harmonização e regeneração de pele, com protocolos práticos e aplicáveis na sua clínica, você estaria aberto(a) a investir nisso?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 5)" onkeydown="keyOption(event, this, 5)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Sim, com certeza.</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 5)" onkeydown="keyOption(event, this, 5)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Talvez, quero entender melhor antes.</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 5)" onkeydown="keyOption(event, this, 5)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Não é o momento certo para mim agora.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 6 ── -->
+    <section class="screen" id="screen-q6" role="main" aria-label="Pergunta 6 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Qual é seu nível de interesse em evoluir como profissional através dessa formação, de 0 a 10?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 6)" onkeydown="keyOption(event, this, 6)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">0 a 3 — só me identifiquei com o cenário, sem interesse real agora.</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 6)" onkeydown="keyOption(event, this, 6)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">4 a 6 — tenho interesse, mas preciso entender melhor o investimento.</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 6)" onkeydown="keyOption(event, this, 6)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">7 a 8 — estou decidido(a), quero saber os detalhes da próxima turma.</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 6)" onkeydown="keyOption(event, this, 6)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">9 a 10 — quero garantir minha vaga o quanto antes.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 7 ── -->
+    <section class="screen" id="screen-q7" role="main" aria-label="Pergunta 7 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Quantos anos de experiência você tem em harmonização facial?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 7)" onkeydown="keyOption(event, this, 7)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Menos de 1 ano</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 7)" onkeydown="keyOption(event, this, 7)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">De 1 a 3 anos</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 7)" onkeydown="keyOption(event, this, 7)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">De 3 a 5 anos</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 7)" onkeydown="keyOption(event, this, 7)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Mais de 5 anos</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 8 ── -->
+    <section class="screen" id="screen-q8" role="main" aria-label="Pergunta 8 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Você já investiu em treinamentos ou cursos de harmonização facial antes?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 8)" onkeydown="keyOption(event, this, 8)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Sim, já fiz vários cursos e formações na área.</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 8)" onkeydown="keyOption(event, this, 8)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Sim, já fiz pelo menos um curso avançado.</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 8)" onkeydown="keyOption(event, this, 8)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Fiz apenas cursos introdutórios até agora.</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 8)" onkeydown="keyOption(event, this, 8)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Não, esse seria meu primeiro investimento em formação avançada.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 9 ── -->
+    <section class="screen" id="screen-q9" role="main" aria-label="Pergunta 9 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Qual valor médio você costuma investir em treinamentos e formações?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 9)" onkeydown="keyOption(event, this, 9)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Até R$ 2.000</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 9)" onkeydown="keyOption(event, this, 9)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">De R$ 2.000 a R$ 5.000</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 9)" onkeydown="keyOption(event, this, 9)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">De R$ 5.000 a R$ 10.000</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 9)" onkeydown="keyOption(event, this, 9)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Acima de R$ 10.000</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 10 ── -->
+    <section class="screen" id="screen-q10" role="main" aria-label="Pergunta 10 de 10">
+      <div class="q-header">
+        <h1 class="q-text">Se tivermos vagas em aberto para a próxima turma do SkinFace, para quando você pretende participar?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 10)" onkeydown="keyOption(event, this, 10)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Quero entrar assim que abrir uma vaga, estou pronto(a) para começar agora.</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 10)" onkeydown="keyOption(event, this, 10)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Pretendo participar em breve, dentro de 1 a 2 meses.</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 10)" onkeydown="keyOption(event, this, 10)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Ainda estou avaliando, talvez daqui a alguns meses.</span>
+        </div>
+        <div class="option-card" data-value="d" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 10)" onkeydown="keyOption(event, this, 10)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">Ainda não tenho certeza se é o momento certo pra mim.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CONTACT FORM ── -->
+    <section class="screen" id="screen-form" role="main" aria-label="Seus dados de contato">
+      <div class="form-header">
+        <div class="form-eyebrow">Quase lá</div>
+        <h1 class="form-title">Para finalizar, precisamos de mais alguns dados para o time entrar em contato.</h1>
+        <p class="form-subtitle">Vamos analisar sua aplicação e retornar com os próximos passos da seleção para a próxima turma do SkinFace.</p>
+      </div>
+
+      <div class="form-fields">
+        <div class="form-field">
+          <label for="field-name">Nome completo</label>
+          <input
+            type="text"
+            id="field-name"
+            name="name"
+            placeholder="Seu nome completo"
+            autocomplete="name"
+            inputmode="text"
+          />
+          <span class="field-error" id="err-name">Por favor, informe seu nome.</span>
+        </div>
+
+        <div class="form-field">
+          <label for="field-email">E-mail</label>
+          <input
+            type="email"
+            id="field-email"
+            name="email"
+            placeholder="seu@email.com.br"
+            autocomplete="email"
+            inputmode="email"
+          />
+          <span class="field-error" id="err-email">Por favor, informe um e-mail válido.</span>
+        </div>
+
+        <div class="form-field">
+          <label for="field-phone">WhatsApp com DDD</label>
+          <div class="phone-input-wrap">
+            <select class="phone-ddi-select" id="field-ddi" aria-label="Código do país">
+              <option value="+55" selected>🇧🇷 +55</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+351">🇵🇹 +351</option>
+            </select>
+            <input
+              type="tel"
+              id="field-phone"
+              name="phone"
+              placeholder="(11) 99999-9999"
+              autocomplete="tel"
+              inputmode="tel"
+              maxlength="15"
+            />
+          </div>
+          <span class="field-error" id="err-phone">Por favor, informe seu WhatsApp com DDD.</span>
+        </div>
+
+        <!-- Hidden UTM fields — populated from URL params by JS -->
+        <input type="hidden" id="utm_source"   name="utm_source"   value="" />
+        <input type="hidden" id="utm_medium"   name="utm_medium"   value="" />
+        <input type="hidden" id="utm_campaign" name="utm_campaign" value="" />
+        <input type="hidden" id="utm_term"     name="utm_term"     value="" />
+        <input type="hidden" id="utm_content"  name="utm_content"  value="" />
+        <input type="hidden" id="utm_id"       name="utm_id"       value="" />
+
+        <div class="privacy-note" aria-label="Nota de privacidade">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(20,20,19,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <p>Seus dados estão seguros. Não compartilhamos suas informações com terceiros e você não receberá spam. O contato será feito exclusivamente pela equipe do SkinFace.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── THANK YOU ── -->
+    <section class="screen" id="screen-thanks" role="main" aria-label="Obrigado">
+      <div class="thanks-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9C8686" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h1 class="thanks-title">Aplicação recebida!</h1>
+      <p class="thanks-sub">
+        Nossa equipe vai analisar o seu perfil e retornar em breve com os próximos passos da seleção para a próxima turma do <strong>SkinFace</strong>. Fique de olho no seu WhatsApp e e-mail.
+      </p>
+      <p class="thanks-sub" style="margin-top: 24px;">
+        Aperte no botão abaixo para furar a fila e ter prioridade na análise da sua aplicação.
+      </p>
+      <a
+        id="btn-priority-link"
+        class="btn-priority"
+        href="https://wa.me/5511973902812"
+        target="_blank"
+        rel="noopener"
+      >FURAR FILA</a>
+    </section>
+
+  </div><!-- #screens -->
+</div><!-- #app -->
+
+<!-- Next button (fixed) -->
+<div id="btn-next-wrap" aria-live="polite">
+  <button id="btn-next" onclick="nextStep()" aria-label="Próxima pergunta">
+    Próxima pergunta
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </button>
+</div>
+
+<script>
+  // ── Steps: 0=intro, 1-10=questions, 11=form, 12=thanks ──
+  const TOTAL_QUESTIONS = 10;
+  let currentStep = 0;
+  let answers = {};       // { 1: "texto da opção", ... }
+  let answerValues = {};  // { 1: "a", ... } — útil para scoring futuro
+
+  const WEBHOOK_URL = 'https://n8n.srv1439548.hstgr.cloud/webhook/skinface-quiz-lead';
+
+  const screens = { intro: document.getElementById('screen-intro') };
+  for (let i = 1; i <= TOTAL_QUESTIONS; i++) screens['q' + i] = document.getElementById('screen-q' + i);
+  screens.form = document.getElementById('screen-form');
+  screens.thanks = document.getElementById('screen-thanks');
+
+  const progressBar = document.getElementById('progress-bar');
+  const btnNextWrap = document.getElementById('btn-next-wrap');
+  const btnNext     = document.getElementById('btn-next');
+
+  function _getCookie(name) {
+    const m = document.cookie.match('(?:^|; )' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)');
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
+  // ── SHA-256 hex hash, normalizado no padrão exigido pelo Advanced Matching da Meta ──
+  async function sha256Hex(value) {
+    const normalized = (value || '').toString().trim().toLowerCase();
+    const bytes = new TextEncoder().encode(normalized);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // ── external_id persistente por visitante (localStorage) ──
+  function getExternalId() {
+    let id = localStorage.getItem('skinface_external_id');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('skinface_external_id', id);
+    }
+    return id;
+  }
+
+  (function captureUTMs() {
+    const params = new URLSearchParams(window.location.search);
+    ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id'].forEach(key => {
+      const el = document.getElementById(key);
+      if (el && params.has(key)) el.value = params.get(key);
+    });
+  })();
+
+  function applyPhoneMask(el) {
+    const ddi = (document.getElementById('field-ddi').value || '+55').replace('+', '');
+    let v = el.value.replace(/\D/g, '');
+    if (v.startsWith(ddi) && v.length > ddi.length + 8) v = v.slice(ddi.length);
+    v = v.slice(0, 11);
+    if (v.length > 10) {
+      v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    } else if (v.length > 6) {
+      v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, '($1) $2-$3');
+    } else if (v.length > 2) {
+      v = v.replace(/^(\d{2})(\d+)$/, '($1) $2');
+    } else if (v.length > 0) {
+      v = v.replace(/^(\d+)$/, '($1');
+    }
+    el.value = v;
+  }
+  const phoneEl = document.getElementById('field-phone');
+  phoneEl.addEventListener('input', function() { applyPhoneMask(this); });
+  phoneEl.addEventListener('change', function() { applyPhoneMask(this); });
+  phoneEl.addEventListener('focus', function() {
+    const self = this;
+    setTimeout(() => applyPhoneMask(self), 300);
+  });
+
+  function getScreenId(step) {
+    if (step === 0) return 'intro';
+    if (step >= 1 && step <= TOTAL_QUESTIONS) return `q${step}`;
+    if (step === TOTAL_QUESTIONS + 1) return 'form';
+    return 'thanks';
+  }
+
+  function goToStep(nextStep) {
+    const currentId = getScreenId(currentStep);
+    const nextId    = getScreenId(nextStep);
+
+    const currentEl = screens[currentId];
+    const nextEl    = screens[nextId];
+
+    currentEl.classList.remove('active');
+    currentEl.classList.add('exit-left');
+    setTimeout(() => currentEl.classList.remove('exit-left'), 450);
+
+    nextEl.style.transform = 'translateX(32px)';
+    nextEl.style.opacity   = '0';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        nextEl.classList.add('active');
+        nextEl.style.transform = '';
+        nextEl.style.opacity   = '';
+      });
+    });
+
+    currentStep = nextStep;
+
+    if (nextStep >= 1 && nextStep <= TOTAL_QUESTIONS) {
+      progressBar.style.width = ((nextStep - 1) / TOTAL_QUESTIONS * 100) + '%';
+    } else if (nextStep >= TOTAL_QUESTIONS + 1) {
+      progressBar.style.width = '100%';
+    } else {
+      progressBar.style.width = '0%';
+    }
+
+    if (nextStep >= 1 && nextStep <= TOTAL_QUESTIONS) {
+      hideNextBtn();
+    } else if (nextStep === TOTAL_QUESTIONS + 1) {
+      btnNext.innerHTML = `Enviar aplicação
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+      showNextBtn();
+    } else {
+      hideNextBtn();
+    }
+
+    nextEl.scrollTop = 0;
+  }
+
+  function startQuiz() { goToStep(1); }
+
+  function nextStep() {
+    if (currentStep >= 1 && currentStep <= TOTAL_QUESTIONS) {
+      goToStep(currentStep + 1);
+    } else if (currentStep === TOTAL_QUESTIONS + 1) {
+      submitForm();
+    }
+  }
+
+  function selectOption(card, questionNum) {
+    const container = card.closest('.options');
+    container.querySelectorAll('.option-card').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-checked', 'false');
+    });
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+    answers[questionNum] = card.querySelector('.option-label').textContent.trim();
+    answerValues[questionNum] = card.getAttribute('data-value');
+
+    // Avança automaticamente após um breve instante, só pra dar tempo
+    // de ver o card marcado antes da transição de tela.
+    if (questionNum === currentStep) {
+      setTimeout(() => nextStep(), 350);
+    }
+  }
+
+  function keyOption(event, card, questionNum) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      selectOption(card, questionNum);
+    }
+  }
+
+  function showNextBtn() { btnNextWrap.classList.add('visible'); }
+  function hideNextBtn()  { btnNextWrap.classList.remove('visible'); }
+
+  async function submitForm() {
+    const nameEl  = document.getElementById('field-name');
+    const emailEl = document.getElementById('field-email');
+    const phoneEl = document.getElementById('field-phone');
+
+    let valid = true;
+
+    if (!nameEl.value.trim() || nameEl.value.trim().length < 2) {
+      nameEl.classList.add('error');
+      document.getElementById('err-name').classList.add('visible');
+      valid = false;
+    } else {
+      nameEl.classList.remove('error');
+      document.getElementById('err-name').classList.remove('visible');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailEl.value.trim())) {
+      emailEl.classList.add('error');
+      document.getElementById('err-email').classList.add('visible');
+      valid = false;
+    } else {
+      emailEl.classList.remove('error');
+      document.getElementById('err-email').classList.remove('visible');
+    }
+
+    const phoneDigits = phoneEl.value.replace(/\D/g, '');
+    const phoneWrap = phoneEl.closest('.phone-input-wrap');
+    if (phoneDigits.length < 10) {
+      if (phoneWrap) phoneWrap.classList.add('error');
+      document.getElementById('err-phone').classList.add('visible');
+      valid = false;
+    } else {
+      if (phoneWrap) phoneWrap.classList.remove('error');
+      document.getElementById('err-phone').classList.remove('visible');
+    }
+
+    if (!valid) {
+      const firstError = document.querySelector('#screen-form input.error, #screen-form .phone-input-wrap.error input');
+      if (firstError) firstError.focus();
+      return;
+    }
+
+    const fullName    = nameEl.value.trim();
+    const email       = emailEl.value.trim();
+    const ddiDigits   = document.getElementById('field-ddi').value.replace('+', '');
+    const phoneNumber = ddiDigits + phoneDigits;
+    const nameParts   = fullName.split(/\s+/);
+    const firstName   = nameParts[0] || '';
+    const lastName    = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+    const externalId  = getExternalId();
+    const eventId     = crypto.randomUUID();
+
+    // Hashes SHA-256 pro Advanced Matching (Conversions API — enviado via n8n)
+    const [emHash, phHash, fnHash, lnHash, externalIdHash] = await Promise.all([
+      sha256Hex(email),
+      sha256Hex(phoneNumber),
+      sha256Hex(firstName),
+      sha256Hex(lastName),
+      sha256Hex(externalId),
+    ]);
+
+    const payload = {
+      full_name:    fullName,
+      email:        email,
+      phone_number: phoneNumber,
+      external_id:  externalId,
+      event_id:     eventId,
+      answers,
+      answer_values: answerValues,
+      utm_source:   document.getElementById('utm_source').value,
+      utm_medium:   document.getElementById('utm_medium').value,
+      utm_campaign: document.getElementById('utm_campaign').value,
+      utm_term:     document.getElementById('utm_term').value,
+      utm_content:  document.getElementById('utm_content').value,
+      utm_id:       document.getElementById('utm_id').value,
+      submitted_at: new Date().toISOString(),
+      fbc:              _getCookie('_fbc'),
+      fbp:              _getCookie('_fbp'),
+      user_agent:       navigator.userAgent,
+      event_source_url: window.location.href,
+      // Advanced Matching já hasheado (SHA-256), pronto pro Conversions API
+      em_hash:            emHash,
+      ph_hash:            phHash,
+      fn_hash:            fnHash,
+      ln_hash:            lnHash,
+      external_id_hash:   externalIdHash,
+    };
+
+    if (WEBHOOK_URL) {
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }).catch(err => console.warn('[SkinFace Quiz] Webhook error:', err));
+    } else {
+      console.warn('[SkinFace Quiz] WEBHOOK_URL não configurado — resposta não foi enviada.', payload);
+    }
+
+    // Pixel do navegador — dispara Lead em toda aplicação válida
+    try {
+      fbq('init', '1483548759360040', {
+        em: email,
+        ph: phoneNumber,
+        fn: firstName.toLowerCase(),
+        ln: lastName.toLowerCase(),
+        external_id: externalId,
+      });
+      fbq('track', 'Lead', {}, { eventID: eventId });
+    } catch (e) { console.warn('[SkinFace Quiz] fbq error', e); }
+
+    const waText = encodeURIComponent(`Olá, sou ${firstName}! Preenchi o formulário de aplicação do SkinFace e quero furar a fila para ter prioridade na análise da minha candidatura.`);
+    document.getElementById('btn-priority-link').href = `https://wa.me/5511973902812?text=${waText}`;
+
+    goToStep(TOTAL_QUESTIONS + 2);
+  }
+
+  document.getElementById('field-name').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('err-name').classList.remove('visible');
+  });
+  document.getElementById('field-email').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('err-email').classList.remove('visible');
+  });
+  document.getElementById('field-phone').addEventListener('input', function() {
+    const wrap = this.closest('.phone-input-wrap');
+    if (wrap) wrap.classList.remove('error');
+    document.getElementById('err-phone').classList.remove('visible');
+  });
+</script>
+</body>
+</html>

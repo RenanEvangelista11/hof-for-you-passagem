@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOF For You — Agende seu Atendimento BB UP</title>
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1483548759360040');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1483548759360040&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- /Meta Pixel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fahkwang:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:       #9C8686;
+      --rose-dark:  #86726F;
+      --sand:       #E6D7C6;
+      --sand-light: #F5EEE4;
+      --dark:       #141413;
+      --white:      #FFFFFF;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--dark);
+      overflow: hidden;
+    }
+
+    #app {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Progress bar ─── */
+    #progress-wrap {
+      height: 3px;
+      background: var(--sand-light);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+    #progress-bar {
+      height: 100%;
+      background: var(--rose);
+      width: 0%;
+      transition: width 0.5s var(--ease-out);
+    }
+
+    /* ─── Screens container ─── */
+    #screens {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      justify-content: safe center;
+      padding: clamp(28px, 5vh, 56px) 20px 110px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+      transform: translateX(32px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+    .screen.exit-left {
+      opacity: 0;
+      transform: translateX(-32px);
+      pointer-events: none;
+    }
+
+    /* ─── Intro screen ─── */
+    #screen-intro {
+      text-align: center;
+      gap: 0;
+    }
+
+    .intro-logo {
+      width: 140px;
+      height: auto;
+      margin-bottom: 28px;
+    }
+
+    /* ─── Before/after gallery — fita de fotos completas, rola sozinha item a item ─── */
+    .gallery {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      width: 100%;
+      max-width: 560px;
+      margin-bottom: 28px;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .gallery::-webkit-scrollbar { height: 4px; }
+    .gallery::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 4px; }
+    .gallery-item {
+      flex: 0 0 auto;
+      width: 200px;
+      border-radius: 12px;
+      scroll-snap-align: start;
+      background: var(--sand-light);
+      border: 1px solid var(--sand);
+    }
+    .gallery-item img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+    .gallery-item span {
+      font-size: 11px;
+      color: rgba(20,20,19,0.4);
+      font-weight: 500;
+    }
+
+    .intro-title {
+      font-family: 'Fahkwang', serif;
+      font-weight: 600;
+      font-size: clamp(24px, 5.5vw, 34px);
+      line-height: 1.25;
+      color: var(--dark);
+      max-width: 580px;
+      margin-bottom: 16px;
+    }
+
+    .intro-text {
+      font-size: clamp(14px, 3.8vw, 16px);
+      line-height: 1.75;
+      color: rgba(20,20,19,0.68);
+      max-width: 480px;
+      margin-bottom: 36px;
+      font-weight: 500;
+    }
+
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--rose);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.02em;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 38px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn-start:hover  { background: var(--rose-dark); transform: translateY(-1px); }
+    .btn-start:active { transform: scale(0.98); }
+
+    /* ─── Question screens ─── */
+    .q-header {
+      width: 100%;
+      max-width: 580px;
+      margin-bottom: 22px;
+    }
+
+    .step-label {
+      font-family: 'Fahkwang', serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 12px;
+    }
+
+    .q-text {
+      font-family: 'Fahkwang', serif;
+      font-weight: 500;
+      font-size: clamp(20px, 5vw, 27px);
+      line-height: 1.35;
+      color: var(--dark);
+    }
+
+    .q-sub {
+      width: 100%;
+      max-width: 580px;
+      font-size: clamp(13px, 3.5vw, 15px);
+      line-height: 1.6;
+      color: rgba(20,20,19,0.65);
+      margin-top: -8px;
+      margin-bottom: 26px;
+    }
+
+    .question-field {
+      width: 100%;
+      max-width: 580px;
+    }
+
+    /* ─── Option cards ─── */
+    .options {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--white);
+      border: 1.5px solid var(--sand);
+      border-radius: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .option-card:hover {
+      border-color: var(--rose);
+      background: var(--sand-light);
+    }
+    .option-card.selected {
+      border-color: var(--rose);
+      background: var(--sand-light);
+    }
+
+    .option-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--sand);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+    }
+    .option-check.square { border-radius: 6px; }
+    .option-card.selected .option-check {
+      border-color: var(--rose);
+    }
+    .option-check-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .option-card.selected .option-check-dot { opacity: 1; }
+    .option-check svg { opacity: 0; transition: opacity 0.15s; }
+    .option-card.selected .option-check svg { opacity: 1; }
+
+    .option-label {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 3.6vw, 16px);
+      font-weight: 500;
+      color: var(--dark);
+      line-height: 1.4;
+    }
+
+    /* ─── Next button ─── */
+    #btn-next-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 20px 28px;
+      background: linear-gradient(to top, rgba(255,255,255,1) 65%, rgba(255,255,255,0));
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+      pointer-events: none;
+    }
+    #btn-next-wrap.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    #btn-next {
+      width: 100%;
+      max-width: 540px;
+      background: var(--rose);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      padding: 17px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    #btn-next:hover  { background: var(--rose-dark); transform: translateY(-1px); }
+    #btn-next:active { transform: scale(0.98); }
+
+    .btn-priority {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+      background: var(--rose);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 16px 40px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn-priority:hover  { background: var(--rose-dark); transform: translateY(-1px); }
+    .btn-priority:active { transform: scale(0.98); }
+
+    /* ─── Text/phone question fields ─── */
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-field input {
+      background: var(--white);
+      border: 1.5px solid var(--sand);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(15px, 4vw, 16px);
+      font-weight: 500;
+      color: var(--dark);
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      height: 52px;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+    }
+    .phone-input-wrap {
+      display: flex;
+      align-items: stretch;
+      height: 52px;
+      background: var(--white);
+      border: 1.5px solid var(--sand);
+      border-radius: 10px;
+      overflow: hidden;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .phone-input-wrap:focus-within { border-color: var(--rose); }
+    .phone-input-wrap.error { border-color: #C0645B; }
+    .phone-ddi-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--sand-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(20,20,19,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      border: none;
+      border-right: 1.5px solid var(--sand);
+      padding: 0 28px 0 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--dark);
+      cursor: pointer;
+      outline: none;
+      height: 100%;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .phone-ddi-select option { background: #fff; color: var(--dark); }
+    .phone-input-wrap input {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(15px, 4vw, 16px);
+      font-weight: 500;
+      color: var(--dark);
+      outline: none;
+      width: 100%;
+      height: 100%;
+      -webkit-appearance: none;
+    }
+    .form-field input::placeholder,
+    .phone-input-wrap input::placeholder {
+      color: rgba(20,20,19,0.32);
+      font-weight: 400;
+    }
+    .form-field input:focus { border-color: var(--rose); }
+    .form-field input.error { border-color: #C0645B; }
+    .field-error {
+      font-size: 12px;
+      color: #C0645B;
+      font-weight: 500;
+      display: none;
+      padding-left: 2px;
+      margin-top: 8px;
+    }
+    .field-error.visible { display: block; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .screen, #btn-next-wrap, #progress-bar { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-wrap" aria-hidden="true">
+  <div id="progress-bar"></div>
+</div>
+
+<div id="app">
+  <div id="screens">
+
+    <!-- ── INTRO ── -->
+    <section class="screen active" id="screen-intro" role="main">
+      <img class="intro-logo" src="images/hof-logo.png" alt="HOF For You" />
+
+      <!-- Galeria de antes/depois ── BB UP ── -->
+      <div class="gallery" aria-label="Resultados antes e depois">
+        <div class="gallery-item"><img src="images/before-after-1.jpg" alt="Resultado antes e depois BB UP" loading="lazy" /></div>
+        <div class="gallery-item"><img src="images/before-after-2.jpg" alt="Resultado antes e depois BB UP" loading="lazy" /></div>
+        <div class="gallery-item"><img src="images/before-after-3.jpg" alt="Resultado antes e depois BB UP" loading="lazy" /></div>
+        <div class="gallery-item"><img src="images/before-after-4.jpg" alt="Resultado antes e depois BB UP" loading="lazy" /></div>
+      </div>
+
+      <h1 class="intro-title">AGENDE SEU ATENDIMENTO NA HOF FOR YOU</h1>
+      <div class="intro-text">
+        <p>RESPONDA ALGUMAS PERGUNTAS RÁPIDAS E ORGANIZE SEU ATENDIMENTO EM MENOS DE 3 MINUTOS</p>
+      </div>
+      <button class="btn-start" onclick="startQuiz()" aria-label="Iniciar formulário">COMEÇAR</button>
+    </section>
+
+    <!-- ── QUESTION 1 — MOTIVO ── -->
+    <section class="screen" id="screen-q1" role="main" aria-label="Pergunta 1 de 6">
+      <div class="q-header">
+        <div class="step-label">1/6</div>
+        <h1 class="q-text">O QUE TE TROUXE ATÉ AQUI?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 1)" onkeydown="keyOption(event, this, 1)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">HARMONIZAÇÃO CORPORAL</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 1)" onkeydown="keyOption(event, this, 1)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">MELHORAR RESULTADOS DE PROCEDIMENTOS ANTERIORES</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 1)" onkeydown="keyOption(event, this, 1)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">AINDA ESTOU PESQUISANDO</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 2 — NOME ── -->
+    <section class="screen" id="screen-q2" role="main" aria-label="Nome e sobrenome">
+      <div class="q-header">
+        <div class="step-label">2/6</div>
+        <h1 class="q-text">QUAL SEU NOME E SOBRENOME?</h1>
+      </div>
+      <div class="question-field">
+        <div class="form-field">
+          <input
+            type="text"
+            id="field-name"
+            placeholder="NOME E SOBRENOME"
+            autocomplete="name"
+            inputmode="text"
+            onkeydown="if(event.key==='Enter'){event.preventDefault(); nextStep();}"
+          />
+          <span class="field-error" id="err-name">Por favor, informe seu nome.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 3 — INCÔMODO (múltipla escolha) ── -->
+    <section class="screen" id="screen-q3" role="main" aria-label="Pergunta 3 de 6">
+      <div class="q-header">
+        <div class="step-label">3/6</div>
+        <h1 class="q-text" id="q3-text">O QUE MAIS TE INCOMODA NO SEU GLÚTEO HOJE?</h1>
+      </div>
+      <p class="q-sub">VOCÊ PODE MARCAR MAIS DE UMA OPÇÃO</p>
+      <div class="options" role="group" aria-label="Opções (múltipla escolha)">
+        <div class="option-card" data-value="a" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleOption(this, 3)" onkeydown="keyToggle(event, this, 3)">
+          <div class="option-check square" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9C8686" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="option-label">FLACIDEZ</span>
+        </div>
+        <div class="option-card" data-value="b" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleOption(this, 3)" onkeydown="keyToggle(event, this, 3)">
+          <div class="option-check square" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9C8686" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="option-label">ESTRIAS E CELULITE</span>
+        </div>
+        <div class="option-card" data-value="c" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleOption(this, 3)" onkeydown="keyToggle(event, this, 3)">
+          <div class="option-check square" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9C8686" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="option-label">FALTA DE VOLUME</span>
+        </div>
+        <div class="option-card" data-value="d" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleOption(this, 3)" onkeydown="keyToggle(event, this, 3)">
+          <div class="option-check square" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9C8686" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="option-label">DEPRESSÃO LATERAL</span>
+        </div>
+        <div class="option-card" data-value="e" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleOption(this, 3)" onkeydown="keyToggle(event, this, 3)">
+          <div class="option-check square" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9C8686" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="option-label">QUERO UMA AVALIAÇÃO GERAL</span>
+        </div>
+      </div>
+      <span class="field-error" id="err-multi" style="margin-top:14px;">Selecione pelo menos uma opção.</span>
+    </section>
+
+    <!-- ── QUESTION 4 — QUANDO ── -->
+    <section class="screen" id="screen-q4" role="main" aria-label="Pergunta 4 de 6">
+      <div class="q-header">
+        <div class="step-label">4/6</div>
+        <h1 class="q-text" id="q4-text">QUANDO VOCÊ PRETENDE INICIAR SEU TRATAMENTO?</h1>
+      </div>
+      <div class="options" role="radiogroup" aria-label="Opções">
+        <div class="option-card" data-value="a" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 4)" onkeydown="keyOption(event, this, 4)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">NAS PRÓXIMAS SEMANAS</span>
+        </div>
+        <div class="option-card" data-value="b" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 4)" onkeydown="keyOption(event, this, 4)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">NOS PRÓXIMOS MESES</span>
+        </div>
+        <div class="option-card" data-value="c" role="radio" aria-checked="false" tabindex="0" onclick="selectOption(this, 4)" onkeydown="keyOption(event, this, 4)">
+          <div class="option-check" aria-hidden="true"><div class="option-check-dot"></div></div>
+          <span class="option-label">AINDA NÃO DECIDI</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 5 — TELEFONE + PREÇO ── -->
+    <section class="screen" id="screen-q5" role="main" aria-label="Telefone">
+      <div class="q-header">
+        <div class="step-label">5/6</div>
+        <h1 class="q-text">CONSULTA NA HOF FOR YOU</h1>
+      </div>
+      <p class="q-sub">CONSULTA DE PLANEJAMENTO: R$ 600,00. VALOR ABATIDO INTEGRALMENTE DO PROTOCOLO SE O TRATAMENTO COMEÇAR NO MESMO DIA.</p>
+      <div class="question-field">
+        <div class="form-field">
+          <div class="phone-input-wrap">
+            <select class="phone-ddi-select" id="field-ddi" aria-label="Código do país">
+              <option value="+55" selected>🇧🇷 +55</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+351">🇵🇹 +351</option>
+            </select>
+            <input
+              type="tel"
+              id="field-phone"
+              placeholder="NÚMERO DE TELEFONE"
+              autocomplete="tel"
+              inputmode="tel"
+              maxlength="15"
+              onkeydown="if(event.key==='Enter'){event.preventDefault(); nextStep();}"
+            />
+          </div>
+          <span class="field-error" id="err-phone">Por favor, informe seu telefone com DDD.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUESTION 6 — FINAL / WHATSAPP ── -->
+    <section class="screen" id="screen-q6" role="main" aria-label="Último passo">
+      <div class="q-header">
+        <div class="step-label">6/6</div>
+        <h1 class="q-text">ÚLTIMO PASSO</h1>
+      </div>
+      <p class="q-sub">CLIQUE NO BOTÃO ABAIXO PARA ABRIR O WHATSAPP. ENVIE A MENSAGEM COMO APARECE.</p>
+      <a
+        id="btn-whatsapp-final"
+        class="btn-priority"
+        href="#"
+        target="_blank"
+        rel="noopener"
+      >ABRIR WHATSAPP</a>
+    </section>
+
+  </div><!-- #screens -->
+
+  <!-- Hidden UTM fields — populated from URL params by JS -->
+  <input type="hidden" id="utm_source"   name="utm_source"   value="" />
+  <input type="hidden" id="utm_medium"   name="utm_medium"   value="" />
+  <input type="hidden" id="utm_campaign" name="utm_campaign" value="" />
+  <input type="hidden" id="utm_term"     name="utm_term"     value="" />
+  <input type="hidden" id="utm_content"  name="utm_content"  value="" />
+  <input type="hidden" id="utm_id"       name="utm_id"       value="" />
+</div><!-- #app -->
+
+<!-- Next button (fixed) -->
+<div id="btn-next-wrap" aria-live="polite">
+  <button id="btn-next" onclick="nextStep()" aria-label="Continuar">
+    Continuar
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </button>
+</div>
+
+<script>
+  // ── Steps: 0=intro, 1=motivo, 2=nome, 3=incômodo(multi), 4=quando, 5=telefone, 6=final ──
+  const TOTAL_QUESTIONS = 6;
+  let currentStep = 0;
+  let answers = {};         // { 1: "texto", 4: "texto", ... } — perguntas de escolha única
+  let answerValues = {};    // { 1: "a", 4: "b", ... }
+  let multiAnswers = {};    // { 3: ["texto1","texto2"] } — perguntas de múltipla escolha
+  let multiAnswerValues = {};
+  const leadId = crypto.randomUUID();
+
+  // TODO: pedir a URL do webhook do n8n (mesmo padrão dos outros formulários) e o
+  // número/mensagem do botão final de WhatsApp antes de publicar.
+  const WEBHOOK_URL = 'https://n8n.srv1439548.hstgr.cloud/webhook/hof-bbup-lead';
+  const WHATSAPP_NUMBER = '5511966010210';
+
+  const screens = { intro: document.getElementById('screen-intro') };
+  for (let i = 1; i <= TOTAL_QUESTIONS; i++) screens['q' + i] = document.getElementById('screen-q' + i);
+
+  const progressBar = document.getElementById('progress-bar');
+  const btnNextWrap = document.getElementById('btn-next-wrap');
+  const btnNext     = document.getElementById('btn-next');
+
+  function _getCookie(name) {
+    const m = document.cookie.match('(?:^|; )' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)');
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
+  // ── SHA-256 hex hash, normalizado no padrão exigido pelo Advanced Matching da Meta ──
+  async function sha256Hex(value) {
+    const normalized = (value || '').toString().trim().toLowerCase();
+    const bytes = new TextEncoder().encode(normalized);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function getExternalId() {
+    let id = localStorage.getItem('hof_bbup_external_id');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('hof_bbup_external_id', id);
+    }
+    return id;
+  }
+
+  (function captureUTMs() {
+    const params = new URLSearchParams(window.location.search);
+    ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id'].forEach(key => {
+      const el = document.getElementById(key);
+      if (el && params.has(key)) el.value = params.get(key);
+    });
+  })();
+
+  function applyPhoneMask(el) {
+    const ddi = (document.getElementById('field-ddi').value || '+55').replace('+', '');
+    let v = el.value.replace(/\D/g, '');
+    if (v.startsWith(ddi) && v.length > ddi.length + 8) v = v.slice(ddi.length);
+    v = v.slice(0, 11);
+    if (v.length > 10) {
+      v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    } else if (v.length > 6) {
+      v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4})$/, '($1) $2-$3');
+    } else if (v.length > 2) {
+      v = v.replace(/^(\d{2})(\d+)$/, '($1) $2');
+    } else if (v.length > 0) {
+      v = v.replace(/^(\d+)$/, '($1');
+    }
+    el.value = v;
+  }
+  const phoneEl = document.getElementById('field-phone');
+  phoneEl.addEventListener('input', function() { applyPhoneMask(this); });
+  phoneEl.addEventListener('change', function() { applyPhoneMask(this); });
+  phoneEl.addEventListener('focus', function() {
+    const self = this;
+    setTimeout(() => applyPhoneMask(self), 300);
+  });
+
+  function getScreenId(step) {
+    if (step === 0) return 'intro';
+    return `q${step}`;
+  }
+
+  function goToStep(nextStep) {
+    const currentId = getScreenId(currentStep);
+    const nextId    = getScreenId(nextStep);
+
+    const currentEl = screens[currentId];
+    const nextEl    = screens[nextId];
+
+    currentEl.classList.remove('active');
+    currentEl.classList.add('exit-left');
+    setTimeout(() => currentEl.classList.remove('exit-left'), 450);
+
+    nextEl.style.transform = 'translateX(32px)';
+    nextEl.style.opacity   = '0';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        nextEl.classList.add('active');
+        nextEl.style.transform = '';
+        nextEl.style.opacity   = '';
+      });
+    });
+
+    currentStep = nextStep;
+
+    if (nextStep >= 1 && nextStep < TOTAL_QUESTIONS) {
+      progressBar.style.width = ((nextStep - 1) / TOTAL_QUESTIONS * 100) + '%';
+    } else if (nextStep >= TOTAL_QUESTIONS) {
+      progressBar.style.width = '100%';
+    } else {
+      progressBar.style.width = '0%';
+    }
+
+    if (nextStep === 2 || nextStep === 3 || nextStep === 5) {
+      showNextBtn();
+    } else {
+      hideNextBtn();
+    }
+
+    nextEl.scrollTop = 0;
+  }
+
+  function startQuiz() { goToStep(1); }
+
+  function nextStep() {
+    if (currentStep === 2) {
+      handleNameStep();
+    } else if (currentStep === 3) {
+      handleMultiStep();
+    } else if (currentStep === 5) {
+      handlePhoneStep();
+    }
+  }
+
+  function handleNameStep() {
+    const nameEl = document.getElementById('field-name');
+    if (!nameEl.value.trim() || nameEl.value.trim().length < 2) {
+      nameEl.classList.add('error');
+      document.getElementById('err-name').classList.add('visible');
+      nameEl.focus();
+      return;
+    }
+    nameEl.classList.remove('error');
+    document.getElementById('err-name').classList.remove('visible');
+
+    const firstName = getFirstName();
+    document.getElementById('q3-text').textContent = `${firstName.toUpperCase()}, O QUE MAIS TE INCOMODA NO SEU GLÚTEO HOJE?`;
+    document.getElementById('q4-text').textContent = `${firstName.toUpperCase()}, QUANDO VOCÊ PRETENDE INICIAR SEU TRATAMENTO?`;
+
+    goToStep(3);
+    sendUpdate('contato');
+  }
+
+  function handleMultiStep() {
+    const selected = Array.from(document.querySelectorAll('#screen-q3 .option-card.selected'));
+    if (selected.length === 0) {
+      document.getElementById('err-multi').classList.add('visible');
+      return;
+    }
+    document.getElementById('err-multi').classList.remove('visible');
+    multiAnswers[3] = selected.map(c => c.querySelector('.option-label').textContent.trim());
+    multiAnswerValues[3] = selected.map(c => c.getAttribute('data-value'));
+    goToStep(4);
+    sendUpdate('pergunta_3');
+  }
+
+  function handlePhoneStep() {
+    const phoneEl = document.getElementById('field-phone');
+    const phoneDigits = phoneEl.value.replace(/\D/g, '');
+    const phoneWrap = phoneEl.closest('.phone-input-wrap');
+    if (phoneDigits.length < 10) {
+      if (phoneWrap) phoneWrap.classList.add('error');
+      document.getElementById('err-phone').classList.add('visible');
+      phoneEl.focus();
+      return;
+    }
+    if (phoneWrap) phoneWrap.classList.remove('error');
+    document.getElementById('err-phone').classList.remove('visible');
+    finalizeSubmission();
+  }
+
+  function selectOption(card, questionNum) {
+    const container = card.closest('.options');
+    container.querySelectorAll('.option-card').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-checked', 'false');
+    });
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+    answers[questionNum] = card.querySelector('.option-label').textContent.trim();
+    answerValues[questionNum] = card.getAttribute('data-value');
+
+    if (questionNum === currentStep) {
+      setTimeout(() => {
+        if (questionNum === 1) {
+          goToStep(2); // pergunta 1 não tem dado pra salvar ainda (sem nome)
+        } else if (questionNum === 4) {
+          goToStep(5);
+          sendUpdate('pergunta_4');
+        }
+      }, 350);
+    }
+  }
+
+  function toggleOption(card) {
+    card.classList.toggle('selected');
+    card.setAttribute('aria-checked', card.classList.contains('selected') ? 'true' : 'false');
+  }
+
+  function keyOption(event, card, questionNum) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      selectOption(card, questionNum);
+    }
+  }
+
+  function keyToggle(event, card) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleOption(card);
+    }
+  }
+
+  function showNextBtn() { btnNextWrap.classList.add('visible'); }
+  function hideNextBtn()  { btnNextWrap.classList.remove('visible'); }
+
+  function getFullName() { return document.getElementById('field-name').value.trim(); }
+  function getFirstName() { return (getFullName().split(/\s+/)[0] || ''); }
+  function getPhoneNumber() {
+    const ddi = document.getElementById('field-ddi').value.replace('+', '');
+    const digits = document.getElementById('field-phone').value.replace(/\D/g, '');
+    return ddi + digits;
+  }
+
+  // ── Snapshot completo do estado atual — cada chamada reenvia tudo,
+  // o Apps Script faz upsert pelo lead_id (substitui a linha inteira) ──
+  function buildBasePayload(stage) {
+    return {
+      lead_id: leadId,
+      protocol: 'BBUP',
+      stage,
+      full_name: getFullName(),
+      phone_number: getPhoneNumber(),
+      motivo: answers[1] || '',
+      motivo_value: answerValues[1] || '',
+      incomodos: (multiAnswers[3] || []).join(', '),
+      incomodos_values: (multiAnswerValues[3] || []).join(','),
+      quando: answers[4] || '',
+      quando_value: answerValues[4] || '',
+      utm_source:   document.getElementById('utm_source').value,
+      utm_medium:   document.getElementById('utm_medium').value,
+      utm_campaign: document.getElementById('utm_campaign').value,
+      utm_term:     document.getElementById('utm_term').value,
+      utm_content:  document.getElementById('utm_content').value,
+      utm_id:       document.getElementById('utm_id').value,
+      submitted_at: new Date().toISOString(),
+      event_source_url: window.location.href,
+      user_agent:       navigator.userAgent,
+    };
+  }
+
+  function sendPayload(payload) {
+    if (!WEBHOOK_URL) {
+      console.warn('[HOF BB UP] WEBHOOK_URL não configurado — resposta não foi enviada.', payload);
+      return;
+    }
+    fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(err => console.warn('[HOF BB UP] Webhook error:', err));
+  }
+
+  function sendUpdate(stage) {
+    sendPayload(buildBasePayload(stage));
+  }
+
+  async function finalizeSubmission() {
+    const payload = buildBasePayload('completo');
+    payload.final = true;
+    payload.event_id = crypto.randomUUID();
+    payload.external_id = getExternalId();
+    payload.fbc = _getCookie('_fbc');
+    payload.fbp = _getCookie('_fbp');
+
+    const firstName = getFirstName();
+    const nameParts = getFullName().split(/\s+/);
+    const lastName  = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+
+    const [phHash, fnHash, lnHash, externalIdHash] = await Promise.all([
+      sha256Hex(payload.phone_number),
+      sha256Hex(firstName),
+      sha256Hex(lastName),
+      sha256Hex(payload.external_id),
+    ]);
+    payload.ph_hash = phHash;
+    payload.fn_hash = fnHash;
+    payload.ln_hash = lnHash;
+    payload.external_id_hash = externalIdHash;
+
+    sendPayload(payload);
+
+    try {
+      fbq('init', '1483548759360040', {
+        ph: payload.phone_number,
+        fn: firstName.toLowerCase(),
+        ln: lastName.toLowerCase(),
+        external_id: payload.external_id,
+      });
+      fbq('track', 'Lead', {}, { eventID: payload.event_id });
+    } catch (e) { console.warn('[HOF BB UP] fbq error', e); }
+
+    const waText = encodeURIComponent(`Olá, sou ${firstName} e respondi o formulário para agendar minha avaliação do protocolo BB UP na HOF For You. Consegue me ajudar?`);
+    document.getElementById('btn-whatsapp-final').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
+
+    goToStep(TOTAL_QUESTIONS);
+  }
+
+  document.getElementById('field-name').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('err-name').classList.remove('visible');
+  });
+  document.getElementById('field-phone').addEventListener('input', function() {
+    const wrap = this.closest('.phone-input-wrap');
+    if (wrap) wrap.classList.remove('error');
+    document.getElementById('err-phone').classList.remove('visible');
+  });
+
+  // ── Carrossel de antes/depois avança sozinho, pausa se a pessoa mexer nele ──
+  // ── Carrossel de antes/depois avança sozinho, pausa se a pessoa mexer nele ──
+  (function autoScrollGallery() {
+    const gallery = document.querySelector('.gallery');
+    if (!gallery) return;
+    const items = Array.from(gallery.querySelectorAll('.gallery-item'));
+    if (items.length < 2) return;
+
+    let index = 0;
+    let pausedUntil = 0;
+
+    function scrollToItem(item) {
+      const galleryRect = gallery.getBoundingClientRect();
+      const itemRect = item.getBoundingClientRect();
+      const targetScrollLeft = gallery.scrollLeft + (itemRect.left - galleryRect.left);
+      gallery.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+    }
+
+    setInterval(() => {
+      if (Date.now() < pausedUntil) return;
+      index = (index + 1) % items.length;
+      scrollToItem(items[index]);
+    }, 1000);
+
+    ['touchstart', 'mousedown', 'wheel'].forEach(evt => {
+      gallery.addEventListener(evt, () => { pausedUntil = Date.now() + 5000; }, { passive: true });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -25,17 +25,20 @@ Lead responde o quiz (HTML hospedado na Vercel)
 ## O que você precisa criar na SUA conta
 
 - [ ] n8n (próprio ou cloud) 
-- [ ] Conta Google com 1 planilha de leads (pode ser 1 por produto) + 1 Apps Script publicado
-- [ ] Pixel/Dataset da Meta + token de acesso da Conversions API
+- [ ] Acesso ao Pixel da cliente na Meta (o mesmo pixel continua, ID 1483548759360040) e um token da API de Conversões desse pixel
+- [ ] (Opcional) Conta Google, se quiser planilha e Apps Script próprios
 - [ ] Conta Vercel (para hospedar os quizzes)
 
-## O que NÃO é seu (não reutilizar)
+## O que já vem pronto
 
-Pixel 1483548759360040, token da Meta, Apps Scripts e planilhas do Renan, projetos Vercel dele. Os JSONs deste pacote já vêm SEM token, sem pixel e sem URL de Apps Script (tem placeholders SEU_...).
+- Pixel: é da cliente e continua o mesmo (1483548759360040), já está nos quizzes e nos workflows.
+- Planilha de leads: os workflows da pasta do Drive já apontam para os Apps Scripts e planilhas atuais, que continuam funcionando. Você só precisa trocar se quiser planilha própria.
+- Único dado que NÃO vem: o token da API de Conversões (por segurança). Gere um novo no Gerenciador de Eventos do pixel, ou peça ao Renan por mensagem privada.
 
 ## Passo a passo
 
-### 1. Planilha e Apps Script (15 min)
+### 1. Planilha e Apps Script (OPCIONAL, 15 min)
+Pule este passo se for continuar usando as planilhas atuais (os workflows do Drive já apontam para elas). Faça só se quiser planilha própria.
 1. Crie uma planilha Google chamada "HOF For You - Leads". Anote o ID (trecho entre /d/ e /edit na URL).
 2. Entre em script.google.com, novo projeto, cole o conteúdo de apps-script/Code.gs.
 3. Implantar > Nova implantação > Tipo "App da Web". Executar como: Eu. Quem pode acessar: Qualquer pessoa.
@@ -45,23 +48,22 @@ Pixel 1483548759360040, token da Meta, Apps Scripts e planilhas do Renan, projet
 
 Como o script funciona: cada POST em  URL/exec?spreadsheetId=ID&tab=NomeDaAba  grava uma linha, casando as chaves do JSON com o cabeçalho. Aba e cabeçalho são criados sozinhos na primeira vez. Sugestão de abas: LineSkin, NBM, BBUP, SkinFace (uma por produto).
 
-### 2. Meta (10 min)
-1. Gerenciador de Eventos: crie ou use um Pixel/Dataset seu. Anote o ID.
+### 2. Meta (5 min)
+1. No Gerenciador de Eventos, abra o pixel 1483548759360040 (peça acesso à cliente ou ao Renan se ainda não tiver).
 2. Configurações > API de Conversões > gere o token de acesso. Anote.
 3. Use "Testar eventos" para pegar o test_event_code durante os testes.
 
 ### 3. n8n (20 min)
 1. Importe os 5 JSONs (Workflows > Import from file).
 2. Em CADA workflow, edite:
-   - nó "Enviar para Google Sheets": troque a URL por  https://script.google.com/macros/s/SEU_ID_DO_APPS_SCRIPT/exec?spreadsheetId=SEU_ID_DA_PLANILHA&tab=NOME_DA_ABA
-   - nó "Enviar Lead para Meta CAPI": troque SEU_PIXEL_ID na URL e SEU_TOKEN_META_CAPI no parâmetro access_token.
+   - nó "Enviar para Google Sheets": só troque se for usar planilha própria (nos JSONs do GitHub é obrigatório, o placeholder SEU_ID_DO_APPS_SCRIPT precisa ser preenchido). URL:  https://script.google.com/macros/s/SEU_ID_DO_APPS_SCRIPT/exec?spreadsheetId=SEU_ID_DA_PLANILHA&tab=NOME_DA_ABA
+   - nó "Enviar Lead para Meta CAPI": cole o token no parâmetro access_token (COLE_AQUI_O_TOKEN_DA_API_DE_CONVERSOES). O pixel já está correto.
 3. Os nós de Sheets e CAPI já vêm com Retry on Fail (3 tentativas). Não remova: o Apps Script do Google devolve 404 intermitente em 2 a 6% das chamadas.
 4. Ative cada workflow (Active) e copie a URL de PRODUÇÃO do webhook (não a de teste).
 
 ### 4. Quizzes (20 min)
 Em cada pasta de /quizzes, abra o index.html (o outro .html com nome do quiz é cópia idêntica) e troque:
 - WEBHOOK_URL = '...'  pela URL de produção do seu n8n
-- Pixel ID (aparece no topo, no script do fbevents e no <noscript>: procure 1483548759360040)
 - número de WhatsApp (procure wa.me/) pelo da clínica/atendimento
 Depois, em cada pasta: vercel --prod (ou arraste a pasta no painel da Vercel). Cada quiz é um projeto separado.
 
@@ -72,5 +74,6 @@ Depois, em cada pasta: vercel --prod (ou arraste a pasta no painel da Vercel). C
 
 ## Cuidados
 - Nunca cole token da Meta em chat público ou repositório.
+- Os JSONs do repositório GitHub (aberto) vêm com placeholder no Apps Script. Os do Drive já vêm preenchidos.
 - Dois quizzes não podem compartilhar o mesmo path de webhook.
 - Se o lead não chegar na planilha mas o n8n estiver verde, olhe a resposta do nó Sheets (pode ser 200 com erro dentro do JSON).

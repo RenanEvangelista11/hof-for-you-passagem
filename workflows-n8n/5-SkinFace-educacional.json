@@ -34,13 +34,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://graph.facebook.com/v21.0/SEU_PIXEL_ID/events",
+        "url": "https://graph.facebook.com/v21.0/1483548759360040/events",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
               "name": "access_token",
-              "value": "SEU_TOKEN_META_CAPI"
+              "value": "COLE_AQUI_O_TOKEN_DA_API_DE_CONVERSOES"
             }
           ]
         },
